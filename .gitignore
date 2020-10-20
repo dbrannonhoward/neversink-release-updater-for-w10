@@ -1,0 +1,11 @@
+# extensions to ignore
+
+
+# files to ignores
+CONSTANTS.py
+releases.json
+
+
+# folders to ignore
+.idea/
+venv_NRU/

@@ -1,4 +1,7 @@
+import datetime
+import os
 import scrapy
+from scrapy.crawler import CrawlerProcess
 
 from CONSTANTS import NEVERSINK_GITHUB_URL
 
@@ -25,3 +28,31 @@ class NeverSinkSpider(scrapy.Spider):
         next_page = response.css('li.next a::attr("href")').get()
         if next_page is not None:
             yield response.follow(next_page, self.parse)
+
+
+class TwistedReactor:
+
+    def __init__(self, spider_definition=NeverSinkSpider):
+        self.output_file = "releases.json"
+        self.delete_existing_output_file()
+        self.spider_definition = spider_definition
+        self.process = CrawlerProcess(settings={
+            "FEEDS": {
+                self.output_file: {
+                    "format": "json"},
+            },
+        })
+
+    def crawl(self):
+        self.process.crawl(self.spider_definition)
+        self.process.start()  # the script will block here til crawling is finished
+        return self.output_file
+
+    def delete_existing_output_file(self):
+        if os.path.exists(self.output_file):
+            os.remove(self.output_file)
+
+
+if __name__ == '__main__':
+    tr = TwistedReactor(spider_definition=NeverSinkSpider)
+    tr.crawl()
