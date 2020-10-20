@@ -1,3 +1,5 @@
+import json
+
 from CONSTANTS import NEVERSINK_GITHUB_URL
 from CONSTANTS import NEVERSINK_LOCAL_PATH
 from neversink_spider_definition import NeverSinkSpider
@@ -18,8 +20,16 @@ class NeverSink:
     def get_remote_version(self):
         return 'todo'
 
-    def parse_remote_version_file(self, dict_to_parse=dict()):
-        print(dict_to_parse)
+    def json_to_dict(self, json_string):
+        return json.loads(json_string)
+
+    def open_file_contents(self, filename):
+        with open(filename, 'r') as f:
+            return self.json_to_dict(f.read())
+
+    def parse_remote_version_file(self, file_containing_dict=dict()):
+        for release in self.open_file_contents(file_containing_dict):
+            print(release)
         return 'todo'
 
     def scrape_release_strings_to_disk(self):
