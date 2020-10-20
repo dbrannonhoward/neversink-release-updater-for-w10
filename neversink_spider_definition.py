@@ -22,6 +22,7 @@ class NeverSinkSpider(scrapy.Spider):
         for release in response.css('div.release-header'):
             yield {
                 'release': release.css('a::text').get(default='not found'),
+                'download': release.xpath('a::attr(href)').extract(default='not found'),
             }
 
         next_page = response.css('li.next a::attr("href")').get()
