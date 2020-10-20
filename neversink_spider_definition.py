@@ -1,4 +1,3 @@
-import datetime
 import os
 import scrapy
 from scrapy.crawler import CrawlerProcess

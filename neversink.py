@@ -1,12 +1,14 @@
 import json
+import re
 
 from CONSTANTS import NEVERSINK_GITHUB_URL
 from CONSTANTS import NEVERSINK_LOCAL_PATH
+from CONSTANTS import REGEX_VERSION_PATTERN
 from neversink_spider_definition import NeverSinkSpider
 from neversink_spider_definition import TwistedReactor
 
 
-class NeverSink:
+class NeverSinkUpdater:
 
     def __init__(self):
         self.local_folder_location = NEVERSINK_LOCAL_PATH
@@ -14,34 +16,47 @@ class NeverSink:
         self.local_version = self.get_local_version()
         self.remote_version = self.get_remote_version()
 
-    def get_local_version(self):
+    @staticmethod
+    def get_local_version():
         return 'todo'
 
-    def get_remote_version(self):
+    @staticmethod
+    def get_remote_version():
         return 'todo'
 
-    def json_to_dict(self, json_string):
+    @staticmethod
+    def json_to_dict(json_string):
         return json.loads(json_string)
 
     def open_file_contents(self, filename):
         with open(filename, 'r') as f:
             return self.json_to_dict(f.read())
 
-    def parse_remote_version_file(self, file_containing_dict=dict()):
+    def parse_and_return_all_version_numbers(self, file_containing_dict=dict()):
+        releases_list = list()
         for release in self.open_file_contents(file_containing_dict):
-            print(release)
-        return 'todo'
+            releases_list.append(self.regex_filter_version(release))
+        return releases_list
 
-    def scrape_release_strings_to_disk(self):
+    @staticmethod
+    def regex_filter_version(release_dict=dict):
+        version_filter = re.compile(REGEX_VERSION_PATTERN)
+        for key in release_dict.keys():
+            test = version_filter.findall(str(release_dict[key]))[0]
+        return test
+
+    @staticmethod
+    def scrape_release_strings_to_disk():
         tr = TwistedReactor(spider_definition=NeverSinkSpider)
         filename_containing_releases_dict = tr.crawl()
         return filename_containing_releases_dict
 
     def main(self):
         filename = self.scrape_release_strings_to_disk()
-        version = self.parse_remote_version_file(filename)
+        version_list = self.parse_and_return_all_version_numbers(filename)
+        print(version_list)
 
 
 if __name__ == '__main__':
-    ns = NeverSink()
+    ns = NeverSinkUpdater()
     ns.main()
